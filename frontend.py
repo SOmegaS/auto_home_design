@@ -59,6 +59,11 @@ class Main:
         """Загрузка изображений"""
         try:
             self.images['net'] = pg.image.load('images/net.png')
+            self.images['btn_wall'] = pg.image.load('images/btn_wall.png')
+            self.images['btn_door'] = pg.image.load('images/btn_door.png')
+            self.images['btn_window'] = pg.image.load('images/btn_window.png')
+            self.images['btn_clear'] = pg.image.load('images/btn_clear.png')
+            self.images['btn_generate'] = pg.image.load('images/btn_generate.png')
         except FileNotFoundError:
             print('Файлы программы не найдены')
 
@@ -188,28 +193,18 @@ class Main:
         # Тик таймера на fps
         self.clock.tick(self.fps)
 
-    def gen_button(self, size, color, text):
+    def gen_button(self, size, text):
         """Генерация красивой кнопки"""
 
         # Поверхность кнопки
         surf = pg.Surface(size)
 
-        # Фоновый белый цвет
-        surf.fill(self.colors['white'])
+        # Изображение
+        image = pg.transform.scale(self.images[text],
+                                   (int(size[0]), int(size[1])))
 
-        # Черная обводка круга
-        pg.draw.circle(surf, self.colors['black'],
-                       (size[0] / 4, size[1] / 2),
-                       min(size) / 4, 2)
-
-        # Круг с указанным цветом
-        pg.draw.circle(surf, color,
-                       (size[0] / 4, size[1] / 2),
-                       min(size) / 4 - 2)
-
-        # Текст кнопки
-        text = pg.font.Font(None, 30).render(text, True, self.colors['black'])
-        surf.blit(text, (size[0] / 5 * 2, size[1] / 2 - 9))
+        # Фоновая картинка
+        surf.blit(image, image.get_rect())
 
         return surf
 
@@ -227,8 +222,7 @@ class Main:
                 ),
                 'btn': self.gen_button(
                     btn_size,
-                    self.colors['white'],
-                    'Clear'
+                    'btn_clear'
                 )
             },
             # Кнопка Wall
@@ -240,8 +234,7 @@ class Main:
                 ),
                 'btn': self.gen_button(
                     btn_size,
-                    self.colors['black'],
-                    'Wall'
+                    'btn_wall'
                 )
             },
             # Кнопка Door
@@ -253,8 +246,7 @@ class Main:
                 ),
                 'btn': self.gen_button(
                     btn_size,
-                    self.colors['green'],
-                    'Door'
+                    'btn_door'
                 )
             },
             # Кнопка Window
@@ -266,8 +258,7 @@ class Main:
                 ),
                 'btn': self.gen_button(
                     btn_size,
-                    self.colors['red'],
-                    'Window'
+                    'btn_window'
                 )
             },
             # Кнопка Generate
@@ -279,8 +270,7 @@ class Main:
                 ),
                 'btn': self.gen_button(
                     btn_size,
-                    self.colors['blue'],
-                    'Generate'
+                    'btn_generate'
                 )
             }
         }
