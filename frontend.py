@@ -1,6 +1,7 @@
 """Модуль фронтенда"""
 
 import sys
+import csv
 import pygame as pg
 
 
@@ -56,7 +57,10 @@ class Main:
 
     def load_images(self):
         """Загрузка изображений"""
-        self.images['net'] = pg.image.load('images/net.png')
+        try:
+            self.images['net'] = pg.image.load('images/net.png')
+        except FileNotFoundError:
+            print('Файлы программы не найдены')
 
     def window2(self):
         """Отрисовка второго окна"""
@@ -107,8 +111,7 @@ class Main:
 
                         # Сохранение массива точек
                         if key == 'generate':
-                            # TODO сохранение массива точек в файл .csv
-                            pass
+                            self.save_points(self.points)
 
                         # Иначе сменить кисть
                         else:
@@ -119,6 +122,7 @@ class Main:
                     self.points.append((i.pos[0] / self.canvas['can'].get_size()[0],
                                         i.pos[1] / self.canvas['can'].get_size()[1],
                                         self.brush))
+                    self.brush = 'wall'
 
         # Перебор массива точек
         for key, val in enumerate(self.points):
@@ -148,8 +152,10 @@ class Main:
                     line_color,
                     (val[0] * self.canvas['can'].get_size()[0],
                      val[1] * self.canvas['can'].get_size()[1]),
-                    (self.points[(key + 1) % len(self.points)][0] * self.canvas['can'].get_size()[0],
-                     self.points[(key + 1) % len(self.points)][1] * self.canvas['can'].get_size()[1]),
+                    (self.points[(key + 1) % len(self.points)][0] *
+                     self.canvas['can'].get_size()[0],
+                     self.points[(key + 1) % len(self.points)][1] *
+                     self.canvas['can'].get_size()[1]),
                     2
                 )
 
@@ -294,6 +300,15 @@ class Main:
         pg.draw.rect(surf, self.colors['black'], (1, 1, size[0] - 1, size[1] - 2), 1)
 
         return surf
+
+    @staticmethod
+    def save_points(points):
+        """Сохранение точек в csv формате"""
+        # Открытие файла
+        with open('point.csv', 'w', encoding='utf-8') as file:
+            writer = csv.writer(file)
+            # Запись массива
+            writer.writerows(points)
 
 
 if __name__ == '__main__':
