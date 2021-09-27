@@ -31,6 +31,40 @@ class Main:
             'blue': (0, 0, 255),
         }
 
+        # Массив изображений
+        self.images = {}
+        self.load_images()
+
+        # Словарь кнопок
+        self.buttons = self.gen_button_group((self.screen.get_size()[0] / 3,
+                                              self.screen.get_size()[1] / 10))
+
+        # Холст
+        self.canvas = {
+            'can': self.gen_canvas((self.screen.get_size()[0] / 3 * 2,
+                                    self.screen.get_size()[1])),
+            'rect': pg.Rect(0, 0,
+                            self.screen.get_size()[0] / 3 * 2,
+                            self.screen.get_size()[1])
+        }
+
+        # Массив координат точек
+        self.points = []
+
+        # Текущая кисть
+        self.brush = 'wall'
+
+    def load_images(self):
+        """Загрузка изображений"""
+        self.images['net'] = pg.image.load('images/net.png')
+
+    def window2(self):
+        """Отрисовка второго окна"""
+
+        #################
+        # Логика работы #
+        #################
+
         # Словарь кнопок
         self.buttons = self.gen_button_group((self.screen.get_size()[0] / 3,
                                               self.screen.get_size()[1] / 10))
@@ -45,74 +79,108 @@ class Main:
                             self.screen.get_size()[1])
         }
 
-    def loop(self):
-        """Цикл работы программы"""
-        while True:
+        # Отлавливание событий
+        for i in pg.event.get():
 
-            # Отлавливание событий
-            for i in pg.event.get():
+            # Выход из приложения
+            if i.type == pg.QUIT:
+                pg.quit()
+                sys.exit()
 
-                # Выход из приложения
-                if i.type == pg.QUIT:
-                    pg.quit()
-                    sys.exit()
+            # Нажатие клавиши
+            elif i.type == pg.KEYDOWN:
+                print(i.key)
 
-                # Нажатие клавиши
-                elif i.type == pg.KEYDOWN:
-                    print(i.key)
+            # Нажатие кнопок мыши
+            elif i.type == pg.MOUSEBUTTONDOWN:
 
-                # Нажатие кнопок мыши
-                elif i.type == pg.MOUSEBUTTONDOWN:
-                    for _, key in enumerate(self.buttons):
-                        if self.buttons[key]['rect'].collidepoint(i.pos):
-                            print(key)
+                # Перебор массива кнопок
+                for _, key in enumerate(self.buttons):
 
-            #################
-            # Логика работы #
-            #################
+                    # Коллизия с курсором
+                    if self.buttons[key]['rect'].collidepoint(i.pos):
 
-            # Словарь кнопок
-            self.buttons = self.gen_button_group((self.screen.get_size()[0] / 3,
-                                                  self.screen.get_size()[1] / 10))
+                        # Очистка
+                        if key == 'clear':
+                            self.canvas['can'].fill(self.colors['white'])
+                            self.points.clear()
 
-            # Холст
-            self.canvas = {
-                'can': self.gen_canvas((self.screen.get_size()[0] / 3 * 2,
-                                        self.screen.get_size()[1])),
-                'rect': pg.Rect(0, 0,
-                                self.screen.get_size()[
-                                    0] / 3 * 2,
-                                self.screen.get_size()[1])
-            }
+                        # Сохранение массива точек
+                        if key == 'generate':
+                            # TODO сохранение массива точек в файл .csv
+                            pass
 
-            #######################
-            # Отрисовка элементов #
-            #######################
+                        # Иначе сменить кисть
+                        else:
+                            self.brush = key
 
-            # Заполнение экрана белым
-            self.screen.fill(self.colors['white'])
+                # Запись новой точки в массив
+                if self.canvas['rect'].collidepoint(i.pos):
+                    self.points.append((i.pos[0] / self.canvas['can'].get_size()[0],
+                                        i.pos[1] / self.canvas['can'].get_size()[1],
+                                        self.brush))
 
-            # Отрисовка кнопок
-            self.screen.blit(self.buttons['void']['btn'],
-                             self.buttons['void']['rect'])
-            self.screen.blit(self.buttons['wall']['btn'],
-                             self.buttons['wall']['rect'])
-            self.screen.blit(self.buttons['door']['btn'],
-                             self.buttons['door']['rect'])
-            self.screen.blit(self.buttons['window']['btn'],
-                             self.buttons['window']['rect'])
-            self.screen.blit(self.buttons['generate']['btn'],
-                             self.buttons['generate']['rect'])
+        # Перебор массива точек
+        for key, val in enumerate(self.points):
+            # Отрисовка точек
+            pg.draw.circle(
+                self.canvas['can'],
+                self.colors['black'],
+                (val[0] * self.canvas['can'].get_size()[0],
+                 val[1] * self.canvas['can'].get_size()[1]),
+                3
+            )
 
-            # Отрисовка холста
-            self.screen.blit(self.canvas['can'],
-                             self.canvas['rect'])
+            # Отрисовка стен, дверей и окон
 
-            # Отрисовка
-            pg.display.update()
+            # Цвет линии
+            line_color = self.colors['black']
+            if val[2] == 'door':
+                line_color = self.colors['green']
+            elif val[2] == 'window':
+                line_color = self.colors['red']
 
-            # Тик таймера на fps
-            self.clock.tick(self.fps)
+            # Проверка, что точка не одна
+            if len(self.points) > 1:
+                # Отрисовка линии
+                pg.draw.line(
+                    self.canvas['can'],
+                    line_color,
+                    (val[0] * self.canvas['can'].get_size()[0],
+                     val[1] * self.canvas['can'].get_size()[1]),
+                    (self.points[(key + 1) % len(self.points)][0] * self.canvas['can'].get_size()[0],
+                     self.points[(key + 1) % len(self.points)][1] * self.canvas['can'].get_size()[1]),
+                    2
+                )
+
+        #######################
+        # Отрисовка элементов #
+        #######################
+
+        # Заполнение экрана белым
+        self.screen.fill(self.colors['white'])
+
+        # Отрисовка кнопок
+        self.screen.blit(self.buttons['clear']['btn'],
+                         self.buttons['clear']['rect'])
+        self.screen.blit(self.buttons['wall']['btn'],
+                         self.buttons['wall']['rect'])
+        self.screen.blit(self.buttons['door']['btn'],
+                         self.buttons['door']['rect'])
+        self.screen.blit(self.buttons['window']['btn'],
+                         self.buttons['window']['rect'])
+        self.screen.blit(self.buttons['generate']['btn'],
+                         self.buttons['generate']['rect'])
+
+        # Отрисовка холста
+        self.screen.blit(self.canvas['can'],
+                         self.canvas['rect'])
+
+        # Отрисовка
+        pg.display.update()
+
+        # Тик таймера на fps
+        self.clock.tick(self.fps)
 
     def gen_button(self, size, color, text):
         """Генерация красивой кнопки"""
@@ -141,58 +209,73 @@ class Main:
 
     def gen_button_group(self, btn_size):
         """Создание панели кнопок"""
+
         # Словарь кнопок
         buttons = {
-            # Кнопка Void
-            'void': {
+            # Кнопка Clear
+            'clear': {
                 'rect': pg.Rect(
                     self.screen.get_size()[0] / 3 * 2,
                     self.screen.get_size()[1] / 6,
-                    *btn_size),
+                    *btn_size
+                ),
                 'btn': self.gen_button(
                     btn_size,
                     self.colors['white'],
-                    'Void')},
+                    'Clear'
+                )
+            },
             # Кнопка Wall
             'wall': {
                 'rect': pg.Rect(
                     self.screen.get_size()[0] / 3 * 2,
                     self.screen.get_size()[1] / 6 * 2,
-                    *btn_size),
+                    *btn_size
+                ),
                 'btn': self.gen_button(
                     btn_size,
                     self.colors['black'],
-                    'Wall')},
+                    'Wall'
+                )
+            },
             # Кнопка Door
             'door': {
                 'rect': pg.Rect(
                     self.screen.get_size()[0] / 3 * 2,
                     self.screen.get_size()[1] / 6 * 3,
-                    *btn_size),
+                    *btn_size
+                ),
                 'btn': self.gen_button(
                     btn_size,
                     self.colors['green'],
-                    'Door')},
+                    'Door'
+                )
+            },
             # Кнопка Window
             'window': {
                 'rect': pg.Rect(
                     self.screen.get_size()[0] / 3 * 2,
                     self.screen.get_size()[1] / 6 * 4,
-                    *btn_size),
+                    *btn_size
+                ),
                 'btn': self.gen_button(
                     btn_size,
                     self.colors['red'],
-                    'Window')},
+                    'Window'
+                )
+            },
             # Кнопка Generate
             'generate': {
                 'rect': pg.Rect(
                     self.screen.get_size()[0] / 3 * 2,
                     self.screen.get_size()[1] / 6 * 5,
-                    *btn_size),
+                    *btn_size
+                ),
                 'btn': self.gen_button(
                     btn_size,
                     self.colors['blue'],
-                    'Generate')
+                    'Generate'
+                )
             }
         }
 
@@ -204,12 +287,16 @@ class Main:
         # Поверхность
         surf = pg.Surface(size)
 
-        # Заливка белым
-        surf.fill(self.colors['white'])
+        # Отрисовка фонового изображения
+        surf.blit(self.images['net'], self.images['net'].get_rect())
+
+        # Обводка
+        pg.draw.rect(surf, self.colors['black'], (1, 1, size[0] - 1, size[1] - 2), 1)
 
         return surf
 
 
 if __name__ == '__main__':
     main = Main()
-    main.loop()
+    while True:
+        main.window2()
