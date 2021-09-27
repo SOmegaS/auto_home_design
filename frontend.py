@@ -31,26 +31,82 @@ class Main:
             'blue': (0, 0, 255),
         }
 
+        # Словарь кнопок
+        self.buttons = self.gen_button_group((self.screen.get_size()[0] / 3,
+                                              self.screen.get_size()[1] / 10))
+
+        # Холст
+        self.canvas = {
+            'can': self.gen_canvas((self.screen.get_size()[0] / 3 * 2,
+                                    self.screen.get_size()[1])),
+            'rect': pg.Rect(0, 0,
+                            self.screen.get_size()[
+                                0] / 3 * 2,
+                            self.screen.get_size()[1])
+        }
+
     def loop(self):
         """Цикл работы программы"""
         while True:
+
             # Отлавливание событий
             for i in pg.event.get():
+
                 # Выход из приложения
                 if i.type == pg.QUIT:
                     pg.quit()
                     sys.exit()
+
                 # Нажатие клавиши
                 elif i.type == pg.KEYDOWN:
                     print(i.key)
 
+                # Нажатие кнопок мыши
+                elif i.type == pg.MOUSEBUTTONDOWN:
+                    for _, key in enumerate(self.buttons):
+                        if self.buttons[key]['rect'].collidepoint(i.pos):
+                            print(key)
+
+            #################
+            # Логика работы #
+            #################
+
+            # Словарь кнопок
+            self.buttons = self.gen_button_group((self.screen.get_size()[0] / 3,
+                                                  self.screen.get_size()[1] / 10))
+
+            # Холст
+            self.canvas = {
+                'can': self.gen_canvas((self.screen.get_size()[0] / 3 * 2,
+                                        self.screen.get_size()[1])),
+                'rect': pg.Rect(0, 0,
+                                self.screen.get_size()[
+                                    0] / 3 * 2,
+                                self.screen.get_size()[1])
+            }
+
+            #######################
+            # Отрисовка элементов #
+            #######################
+
             # Заполнение экрана белым
             self.screen.fill(self.colors['white'])
 
-            # Добавление группы с кнопками
-            btn_group = self.generate_button_group((self.screen.get_size()[0] / 3,
-                                                    self.screen.get_size()[1]))
-            self.screen.blit(btn_group, (self.screen.get_size()[0] / 3 * 2, 0))
+            # Отрисовка кнопок
+            self.screen.blit(self.buttons['void']['btn'],
+                             self.buttons['void']['rect'])
+            self.screen.blit(self.buttons['wall']['btn'],
+                             self.buttons['wall']['rect'])
+            self.screen.blit(self.buttons['door']['btn'],
+                             self.buttons['door']['rect'])
+            self.screen.blit(self.buttons['window']['btn'],
+                             self.buttons['window']['rect'])
+            self.screen.blit(self.buttons['generate']['btn'],
+                             self.buttons['generate']['rect'])
+
+            # Отрисовка холста
+            self.screen.blit(self.canvas['can'],
+                             self.canvas['rect'])
 
             # Отрисовка
             pg.display.update()
@@ -58,7 +114,7 @@ class Main:
             # Тик таймера на fps
             self.clock.tick(self.fps)
 
-    def generate_button(self, size, color, text):
+    def gen_button(self, size, color, text):
         """Генерация красивой кнопки"""
 
         # Поверхность кнопки
@@ -83,51 +139,73 @@ class Main:
 
         return surf
 
-    def generate_button_group(self, size):
-        """Генерация группы кнопок"""
+    def gen_button_group(self, btn_size):
+        """Создание панели кнопок"""
+        # Словарь кнопок
+        buttons = {
+            # Кнопка Void
+            'void': {
+                'rect': pg.Rect(
+                    self.screen.get_size()[0] / 3 * 2,
+                    self.screen.get_size()[1] / 6,
+                    *btn_size),
+                'btn': self.gen_button(
+                    btn_size,
+                    self.colors['white'],
+                    'Void')},
+            # Кнопка Wall
+            'wall': {
+                'rect': pg.Rect(
+                    self.screen.get_size()[0] / 3 * 2,
+                    self.screen.get_size()[1] / 6 * 2,
+                    *btn_size),
+                'btn': self.gen_button(
+                    btn_size,
+                    self.colors['black'],
+                    'Wall')},
+            # Кнопка Door
+            'door': {
+                'rect': pg.Rect(
+                    self.screen.get_size()[0] / 3 * 2,
+                    self.screen.get_size()[1] / 6 * 3,
+                    *btn_size),
+                'btn': self.gen_button(
+                    btn_size,
+                    self.colors['green'],
+                    'Door')},
+            # Кнопка Window
+            'window': {
+                'rect': pg.Rect(
+                    self.screen.get_size()[0] / 3 * 2,
+                    self.screen.get_size()[1] / 6 * 4,
+                    *btn_size),
+                'btn': self.gen_button(
+                    btn_size,
+                    self.colors['red'],
+                    'Window')},
+            # Кнопка Generate
+            'generate': {
+                'rect': pg.Rect(
+                    self.screen.get_size()[0] / 3 * 2,
+                    self.screen.get_size()[1] / 6 * 5,
+                    *btn_size),
+                'btn': self.gen_button(
+                    btn_size,
+                    self.colors['blue'],
+                    'Generate')
+            }
+        }
 
-        # Поверхность кнопки
+        return buttons
+
+    def gen_canvas(self, size):
+        """Генерация холста"""
+
+        # Поверхность
         surf = pg.Surface(size)
 
-        # Фоновый белый цвет
+        # Заливка белым
         surf.fill(self.colors['white'])
-
-        btn_size = (size[0], size[1] / 10)
-
-        # Добавление кнопки Void
-        btn_void = {'coord': (0, size[1] / 6),
-                    'btn': self.generate_button(btn_size,
-                                                self.colors['white'],
-                                                'Void')}
-        surf.blit(btn_void['btn'], btn_void['coord'])
-
-        # Добавление кнопки Wall
-        btn_wall = {'coord': (0, size[1] / 6 * 2),
-                    'btn': self.generate_button(btn_size,
-                                                self.colors['black'],
-                                                'Wall')}
-        surf.blit(btn_wall['btn'], btn_wall['coord'])
-
-        # Добавление кнопки Door
-        btn_door = {'coord': (0, size[1] / 6 * 3),
-                    'btn': self.generate_button(btn_size,
-                                                self.colors['green'],
-                                                'Door')}
-        surf.blit(btn_door['btn'], btn_door['coord'])
-
-        # Добавление кнопки Window
-        btn_window = {'coord': (0, size[1] / 6 * 4),
-                      'btn': self.generate_button(btn_size,
-                                                  self.colors['red'],
-                                                  'Window')}
-        surf.blit(btn_window['btn'], btn_window['coord'])
-
-        # Добавление кнопки Generate
-        btn_generate = {'coord': (0, size[1] / 6 * 5),
-                        'btn': self.generate_button(btn_size,
-                                                    self.colors['blue'],
-                                                    'Generate')}
-        surf.blit(btn_generate['btn'], btn_generate['coord'])
 
         return surf
 
