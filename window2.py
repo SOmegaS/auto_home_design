@@ -67,7 +67,19 @@ class Main:
         except FileNotFoundError:
             print('Файлы программы не найдены')
 
-    def window2(self):
+        with open('path.txt', 'r', encoding='windows-1251') as file:
+            path = file.read()
+
+        if path != '':
+            try:
+                self.images['background'] = pg.image.load(path)
+            except FileNotFoundError:
+                self.images['background'] = None
+        else:
+            self.images['background'] = None
+        print(self.images['background'])
+
+    def frame(self):
         """Отрисовка второго окна"""
 
         #################
@@ -117,6 +129,7 @@ class Main:
                         # Сохранение массива точек
                         if key == 'generate':
                             self.save_points(self.points)
+                            return True
 
                         # Иначе сменить кисть
                         else:
@@ -192,6 +205,8 @@ class Main:
 
         # Тик таймера на fps
         self.clock.tick(self.fps)
+
+        return False
 
     def gen_button(self, size, text):
         """Генерация красивой кнопки"""
@@ -283,8 +298,17 @@ class Main:
         # Поверхность
         surf = pg.Surface(size)
 
+        # Заливка белым
+        surf.fill(self.colors['white'])
+
         # Отрисовка фонового изображения
-        surf.blit(self.images['net'], self.images['net'].get_rect())
+        if self.images['background'] is None:
+            surf.blit(self.images['net'], self.images['net'].get_rect())
+        else:
+            img = self.images['background']
+            img = pg.transform.scale(img, (int(size[0]), int(size[1])))
+            img.set_alpha(128)
+            surf.blit(img, img.get_rect())
 
         # Обводка
         pg.draw.rect(surf, self.colors['black'], (1, 1, size[0] - 1, size[1] - 2), 1)
@@ -303,5 +327,5 @@ class Main:
 
 if __name__ == '__main__':
     main = Main()
-    while True:
-        main.window2()
+    while not main.frame():
+        pass
