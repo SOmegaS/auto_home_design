@@ -221,7 +221,7 @@ def main():
 
         draw_text(SCREEN, "Auto Design Concept", 30, 140, 10)
         draw_text(SCREEN, "Key words", 30, 480, 10)
-        draw_text(SCREEN, "Add more", 17, 300, 205)
+        draw_text(SCREEN, "Add word", 17, 300, 205)
         draw_text(SCREEN, "Generate", 30, 200, 405)
 
         if len(KW) == 1:
