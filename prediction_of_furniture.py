@@ -2,7 +2,7 @@ import compress_fasttext
 
 
 small_model = compress_fasttext.models.CompressedFastTextKeyedVectors.load( 
-   'https://github.com/avidale/compress-fasttext/releases/download/v0.0.1/ft_freqprune_100K_20K_pq_300.bin' ) 
+   'ft_freqprune_100K_20K_pq_300.bin' ) 
 
 
 word1 = ['современный', 'актуальный', 'модный', 'сегодняшний', 'текущий', 'настоящий', 'крутой', 'новый', 'моментный']

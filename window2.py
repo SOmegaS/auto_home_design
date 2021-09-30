@@ -320,7 +320,7 @@ class Main:
         """Сохранение точек в csv формате"""
         # Открытие файла
         with open('point.csv', 'w', encoding='utf-8') as file:
-            writer = csv.writer(file)
+            writer = csv.writer(file, lineterminator='\n')
             # Запись массива
             writer.writerows(points)
 

@@ -4,3 +4,5 @@ point.csv
 words.csv
 furniture.csv
 path.txt
+style.txt
+__pycache__/

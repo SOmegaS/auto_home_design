@@ -107,10 +107,11 @@ class InputBox:
                 # prints current location of mouse
                 ending = direc.split('.')[-1]
                 # Открытие файла
-                with open('words.csv', 'w', encoding='utf-8') as file:
+                with open('words.csv', 'w', encoding='windows-1251') as file:
                     writer = csv.writer(file)
                     # Запись массива
-                    writer.writerows(KW)
+                    print(KW)
+                    writer.writerows([KW])
                 with open('path.txt', 'w', encoding='windows-1251') as file:
                     file.write(direc)
                 print("-" * 8)

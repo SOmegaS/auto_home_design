@@ -77,7 +77,7 @@ def main():
 
     # Сохранение в файл
     with open('furniture.csv', 'w', encoding='utf-8') as file:
-        writer = csv.writer(file)
+        writer = csv.writer(file, lineterminator='\n')
         # Запись массива
         writer.writerows(furniture)
 
