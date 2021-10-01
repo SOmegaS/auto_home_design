@@ -65,7 +65,10 @@ def main():
                 # x мебели
                 x_furn = x_middle - 0.01
                 # y мебели
-                y_furn = y_middle - (x_wall2 - x_wall1) * (x_furn - x_middle) / (y_wall2 - y_wall1)
+                if y_wall2 == y_wall1:
+                    y_furn = y_wall1
+                else:
+                    y_furn = y_middle - (x_wall2 - x_wall1) * (x_furn - x_middle) / (y_wall2 - y_wall1)
 
             furniture.append(
                 (

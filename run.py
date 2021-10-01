@@ -5,6 +5,7 @@ import window2
 import auto_arranger
 import prediction_of_furniture
 import csv
+import subprocess
 
 
 def main():
@@ -29,6 +30,8 @@ def main():
     style = prediction_of_furniture.pred_mod(words)
     with open('style.txt', 'w', encoding='utf-8') as file:
         file.write(str(style))
+
+    subprocess.run(['bin/ggg.exe'])
 
 
 if __name__ == '__main__':
